@@ -1,7 +1,12 @@
-default[:stud][:version] = "0.3"
-default[:stud][:user] = "root"
+default[:stud][:install_method] = 'source'
+default[:stud][:source][:version] = '0.3'
+default[:stud][:conf_dir] = '/etc/stud'
+default[:stud][:user] = node.platform_family == 'debian' ? '_stud' : 'root'
 default[:stud][:install_prefix_root] = "/usr/local"
 default[:stud][:pemfile_path] = nil
+default[:stud][:write_default_config] = true
+# Security options
+default[:stud][:chroot_path] = nil
 
 # Encryption options
 default[:stud][:options][:tls] = true
@@ -19,10 +24,6 @@ default[:stud][:options][:frontend_port] = "8443"
 default[:stud][:options][:workers] = 1
 default[:stud][:options][:backlog] = 100
 default[:stud][:options][:keepalive_secs] = nil
-
-# Security options
-default[:stud][:options][:chroot_path] = nil
-default[:stud][:options][:user] = nil
 
 # Logging options
 default[:stud][:options][:quiet] = false
