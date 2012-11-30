@@ -1,6 +1,6 @@
 def load_current_resource
   unless(new_resource.path)
-    new_resource.path File.join(node[:stud][:conf_dir], new_resource.name)
+    new_resource.path File.join(node[:stud][:conf_dir], "#{new_resource.name}.conf")
   end
   node.run_state[:stud_conf_files] ||= []
 end
@@ -23,7 +23,7 @@ action :create do
   run_flags << "--write-ip" if new_resource.write_ip
   run_flags << "--write-proxy" if new_resource.write_proxy
 
-  template new_resource.path do
+  t = template new_resource.path do
     mode 0644
     variables(
       :run_flags => run_flags,
@@ -33,20 +33,30 @@ action :create do
     notifies :create, "ruby_block[stud config notifier[#{new_resource.name}]]", :immediately
   end
 
-  ruby_block "stud config notifier[#{new_resource.name}]" do
-    block do
-      new_resource.updated_by_last_action(true)
-    end
-    action :nothing
+  i_t = template "/etc/init.d/stud-#{new_resource.name}" do
+    source 'stud_init_solo.erb'
+    mode 0755
+    variables(
+      :name => new_resource.name
+    )
   end
+
+  new_resources.updated_by_last_action(
+    t.updated_by_last_action? || i_t.updated_by_last_action?
+  )
+  
   node.run_state[:stud_conf_files] << File.basename(new_resource.path)
 end
 
 action :delete do
-  template new_resource.path do
+  t = template new_resource.path do
     action :delete
-    only_if do
-      ::File.exists?(new_resource.path) && new_resource.updated_by_last_action(true)
-    end
   end
+  i_t = template "/etc/init.d/stud-#{new_resource.name}" do
+    action :delete
+  end
+  
+  new_resources.updated_by_last_action(
+    t.updated_by_last_action? || i_t.updated_by_last_action?
+  )
 end
