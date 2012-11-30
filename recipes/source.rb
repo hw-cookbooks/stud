@@ -20,6 +20,22 @@ git "#{node[:stud][:install_prefix_root]}/share/stud" do
   action :sync
 end
 
+user node[:stud][:user] do
+  action :create
+  system true
+  home node[:stud][:options][:chroot_path] if node[:stud][:options][:chroot_path]
+  shell '/bin/false'
+end
+
+if(node[:stud][:options][:chroot_path])
+  directory node[:stud][:options][:chroot_path] do
+    action :create
+    mode 0755
+    owner node[:stud][:user]
+    recursive true
+  end
+end
+
 execute "build-stud" do
   user node[:stud][:user]
   cwd "#{node[:stud][:install_prefix_root]}/share/stud"
