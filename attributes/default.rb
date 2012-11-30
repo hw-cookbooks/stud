@@ -1,12 +1,15 @@
 default[:stud][:install_method] = 'source'
-default[:stud][:source][:version] = '0.3'
 default[:stud][:conf_dir] = '/etc/stud'
 default[:stud][:user] = node.platform_family == 'debian' ? '_stud' : 'root'
-default[:stud][:install_prefix_root] = "/usr/local"
 default[:stud][:pemfile_path] = nil
 default[:stud][:write_default_config] = true
 # Security options
 default[:stud][:chroot_path] = nil
+
+# source options
+default[:stud][:source][:version] = '0.3'
+default[:stud][:source][:install_prefix_root] = "/usr/local"
+default[:stud][:source][:pid_dir] = '/var/run'
 
 # Encryption options
 default[:stud][:options][:tls] = true
