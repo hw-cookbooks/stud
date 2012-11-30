@@ -1,0 +1,59 @@
+#!/bin/sh
+#
+# Simple stud init.d script conceived to work on Linux systems
+# as it does use the /proc filesystem.
+#
+# NOTE: This script is based off the Redis init script shipped
+# in the redis cookbook. The rest is based off the init script
+# currently shipped with the debian/ubuntu package
+
+EXEC="<%= node[:stud][:source][:install_prefix_root] %>/bin/stud"
+PIDDIR="<%= node[:stud][:source][:pid_dir] %>"
+FILES="<%= File.join(node[:stud][:conf_dir], "*.conf") %>"
+
+case "$1" in
+  start)
+    for conf in $FILES; do
+      if [ -f $conf ]
+      then
+        BASE=$(basename $conf | sed -e 's/.conf//')
+        PIDFILE=${PIDDIR}/stud.${BASE}.pid
+        . $conf
+        if [ -f $PIDFILE ]
+        then
+          echo "$PIDFILE exists, process is already running or crashed"
+        else
+          echo "Start $BASE stud instance..."
+          $EXEC $OPTIONS $CERT
+        fi
+      fi
+    done
+    ;;
+  stop)
+    for conf in $FILES; do
+      if [ -f $conf ]
+      then
+        BASE=$(basename $conf | sed -e 's/.conf//')
+        PIDFILE=${PIDDIR}/stud.${BASE}.pid
+        . $conf
+        if [ ! -f $PIDFILE ]
+        then
+          echo "$PIDFILE does not exist, process is not running"
+        else
+          PID=$(cat $PIDFILE)
+          echo "Stopping ..."
+          kill $PID
+          while [ -x /proc/${PID} ]
+          do
+            echo "Waiting for stud (${BASE}) to shutdown ..."
+            sleep 1
+          done
+          echo "Stud (${BASE}) stopped"
+        fi
+      fi
+    done
+    ;; 
+  *)
+    echo "Please use start or stop as first argument"
+    ;;
+esac

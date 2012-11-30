@@ -14,7 +14,7 @@ package "libssl-dev"
 package "libev-dev"
 package "git-core"
 
-git "#{node[:stud][:install_prefix_root]}/share/stud" do
+git "#{node[:stud][:source][:install_prefix_root]}/share/stud" do
   repository "git://github.com/bumptech/stud.git"
   reference node[:stud][:source][:version]
   action :sync
@@ -36,16 +36,25 @@ if(node[:stud][:options][:chroot_path])
   end
 end
 
+directory node[:stud][:source][:pid_dir] do
+  mode 0755
+  recursive true
+end
+
 execute "build-stud" do
   user node[:stud][:user]
-  cwd "#{node[:stud][:install_prefix_root]}/share/stud"
+  cwd "#{node[:stud][:source][:install_prefix_root]}/share/stud"
   command "make && make install"
   action :run
 end
 
 # Link the binary to the one we built
-link "#{node[:stud][:install_prefix_root]}/bin/stud" do
-  to "#{node[:stud][:install_prefix_root]}/share/stud/stud"
+link "#{node[:stud][:source][:install_prefix_root]}/bin/stud" do
+  to "#{node[:stud][:source][:install_prefix_root]}/share/stud/stud"
   action :create
 end
 
+template '/etc/init.d/stud' do
+  source 'stud_init.erb'
+  mode 0755
+end

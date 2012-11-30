@@ -21,11 +21,19 @@ run_flags << "-s" if node[:stud][:options][:send_to_syslog]
 run_flags << "--write-ip" if node[:stud][:options][:write_ip]
 run_flags << "--write-proxy" if node[:stud][:options][:write_proxy]
 
-template File.join(node[:stud][:conf_dir], 'default') do
+template File.join(node[:stud][:conf_dir], 'default.conf') do
   source 'stud.conf.erb'
   mode 0644
   variables(
     :run_flags => run_flags
+  )
+end
+
+template '/etc/init.d/stud-default' do
+  source 'stud_init_solo.erb'
+  mode 0755
+  variables(
+    :name => 'default'
   )
 end
 
