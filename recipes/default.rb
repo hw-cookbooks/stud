@@ -1,4 +1,3 @@
-
 case node[:stud][:install_method]
 when 'package'
   include_recipe 'stud::package'
@@ -20,3 +19,5 @@ end
 service 'stud' do
   action [:enable, :start]
 end
+
+include_recipe 'stud::cleaner'

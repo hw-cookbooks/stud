@@ -27,7 +27,7 @@ template File.join(node[:stud][:conf_dir], 'default') do
   variables(
     :run_flags => run_flags
   )
-  only_if do
-    node[:stud][:write_default_config]
-  end
 end
+
+node.run_state[:stud_conf_files] ||= []
+node.run_state[:stud_conf_files] << 'default'

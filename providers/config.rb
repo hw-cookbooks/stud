@@ -2,6 +2,7 @@ def load_current_resource
   unless(new_resource.path)
     new_resource.path File.join(node[:stud][:conf_dir], new_resource.name)
   end
+  node.run_state[:stud_conf_files] ||= []
 end
 
 action :create do
@@ -38,6 +39,7 @@ action :create do
     end
     action :nothing
   end
+  node.run_state[:stud_conf_files] << File.basename(new_resource.path)
 end
 
 action :delete do
